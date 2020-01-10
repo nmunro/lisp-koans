@@ -50,8 +50,29 @@
 ; Your goal is to write the score method.
 
 (defun score (dice)
-  ; You need to write this method
-)
+  (flet ((sum-valid-scores (dice)
+           (reduce #'+
+                  (mapcar (lambda (x) (cond
+                                        ((= x 1) 100)
+                                        ((= x 5) 50)
+                                        (t x)))
+                          (remove-if (lambda (x) (or (= x 2) (= x 3) (= x 4) (= x 6))) dice))))
+
+         (check-three-of-a-kind (dice start-indexes)
+           (dolist (index start-indexes)
+             (let ((seq (if start-indexes (subseq dice index (+ 3 index)) dice)))
+               (when (apply #'= seq)
+                 (if (= 1 (first seq))
+                     (return-from check-three-of-a-kind (replace dice (make-list 3 :initial-element 1000/3) :start1 index))
+                     (return-from check-three-of-a-kind (replace dice (make-list 3 :initial-element (/ (* 100 (first seq)) 3)) :start1 index))))))
+           dice))
+
+    (cond
+      ((eq dice nil) 0)
+      ((= (length dice) 3) (sum-valid-scores (check-three-of-a-kind (sort dice #'<) '(0))))
+      ((= (length dice) 4) (sum-valid-scores (check-three-of-a-kind (sort dice #'<) '(0 1))))
+      ((= (length dice) 5) (sum-valid-scores (check-three-of-a-kind (sort dice #'<) '(0 1 2))))
+      (t (sum-valid-scores dice)))))
 
 (define-test test-score-of-an-empty-list-is-zero
     (assert-equal 0 (score nil)))
