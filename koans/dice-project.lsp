@@ -22,16 +22,19 @@
 
 ;;  YOU WRITE THIS PART:
 (defclass dice-set ()
-  () ;; WRITE DICE-SET CLASS BODY HERE
-)
+  ;; WRITE DICE-SET CLASS BODY HERE
+  ((dice :initarg :dice :initform '() :accessor dice)))
 
 (defmethod get-values ((object dice-set))
   ;; WRITE GET-VALUES METHOD DEFINITION HERE
-)
+  (dice object))
 
 (defmethod roll (how-many (object dice-set))
   ;; WRITE ROLL METHOD DEFINITION HERE
-)
+  (setf (dice object) '())
+  (dotimes (a how-many)
+    (push (1+ (random 6)) (dice object)))
+  (get-values object))
 
 
 (define-test test-create-dice-set
